@@ -19,7 +19,6 @@ class Config:
     embed_model: str
     embed_dim: int = 768
     top_k: int = 5
-    # Fixed placeholder until Phase 5 wires in real auth
     user_id: str = "00000000-0000-0000-0000-000000000001"
 
 

@@ -7,9 +7,9 @@ Read this before touching any code. Write to it after every change.
 
 ## Current State
 
-- **Phase:** 4 — code complete, ready for live DoD test
+- **Phase:** 4 — polished, ready for live DoD test. Phase 5+ deferred indefinitely.
 - **Last worked on:** 2026-05-30
-- **Last agent action:** Reverted Phase 5 back to Phase 4 at user request. auth.py deleted, schema.sql back to RLS off, cli.py login step removed, .env.example back to service_role key.
+- **Last agent action:** Polish pass — rich formatting added to cli.py (tables, spinners, styled output), WIP comments cleaned up, AGENTS.md created. No auth/Phase 5 work.
 
 ---
 
@@ -22,8 +22,8 @@ Read this before touching any code. Write to it after every change.
 | 2     | Semantic search             | code complete — needs live DoD test | /add now embeds; /search queries by meaning |
 | 3     | Answers (RAG complete)      | code complete — needs live DoD test | /ask: embed → search → synthesize; no-hallucination short-circuit in place |
 | 4     | Auto intent                 | code complete — needs live DoD test | heuristic + LLM classifier; bare text routes to store or query automatically |
-| 5     | Accounts & multi-device     | not started | reverted at user request |
-| 6     | Hardening (optional)        | not started | |
+| 5     | Accounts & multi-device     | deferred   | not planned; reverted at user request |
+| 6     | Hardening (optional)        | deferred   | |
 
 ---
 
@@ -65,6 +65,12 @@ Fill these in once confirmed against official docs before writing integration co
 ## Session Notes
 
 Short log of what each session did. Prepend new entries (newest at top).
+
+### 2026-05-30 — Polish pass
+- `recall/cli.py` — replaced plain `print()` with rich (Console, Table, Panel, status spinner). Help displayed in Panel, list/search in Tables, save/query show spinners during API calls, all output color-coded.
+- `recall/config.py` — removed stale Phase 5 placeholder comment.
+- `AGENTS.md` created for future OpenCode sessions.
+- Phase 5/6 marked as "deferred" — treat Phase 4 as the terminal state for now.
 
 ### 2026-05-30 — Phase 5 (reverted)
 Phase 5 was implemented then reverted at user request. All changes undone:
