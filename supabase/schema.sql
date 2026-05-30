@@ -42,6 +42,7 @@ alter table memories disable row level security;
 --    Phase 5: swap the two lines above for these:
 --
 --    alter table memories enable row level security;
+--    drop policy if exists "owner can do everything" on memories;
 --    create policy "owner can do everything"
 --      on memories for all
 --      using (auth.uid() = user_id)

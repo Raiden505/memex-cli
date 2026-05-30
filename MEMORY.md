@@ -7,9 +7,9 @@ Read this before touching any code. Write to it after every change.
 
 ## Current State
 
-- **Phase:** 3 — code complete, ready for live DoD test
+- **Phase:** 4 — code complete, ready for live DoD test
 - **Last worked on:** 2026-05-30
-- **Last agent action:** Implemented Phase 3 — llm.py with synthesize_answer; /ask wired (embed → search → synthesize). No-hallucination short-circuit in place. Imports verified clean.
+- **Last agent action:** Reverted Phase 5 back to Phase 4 at user request. auth.py deleted, schema.sql back to RLS off, cli.py login step removed, .env.example back to service_role key.
 
 ---
 
@@ -21,8 +21,8 @@ Read this before touching any code. Write to it after every change.
 | 1     | Cloud storage (no AI)       | code complete — needs live Supabase DoD test | run schema.sql in Supabase dashboard first |
 | 2     | Semantic search             | code complete — needs live DoD test | /add now embeds; /search queries by meaning |
 | 3     | Answers (RAG complete)      | code complete — needs live DoD test | /ask: embed → search → synthesize; no-hallucination short-circuit in place |
-| 4     | Auto intent                 | not started | |
-| 5     | Accounts & multi-device     | not started | |
+| 4     | Auto intent                 | code complete — needs live DoD test | heuristic + LLM classifier; bare text routes to store or query automatically |
+| 5     | Accounts & multi-device     | not started | reverted at user request |
 | 6     | Hardening (optional)        | not started | |
 
 ---
@@ -49,6 +49,8 @@ Fill these in once confirmed against official docs before writing integration co
 | 2026-05-30 | `ALTER TABLE memories DISABLE ROW LEVEL SECURITY` added explicitly to schema.sql | Supabase enables RLS by default on all new tables; without this the service_role key still gets blocked on insert |
 | 2026-05-30 | `task_type="RETRIEVAL_DOCUMENT"` on store, `task_type="RETRIEVAL_QUERY"` on search | Without task types, all memories score ~0.59 regardless of relevance — the model compresses scores into a narrow band. Task types restore meaningful ranking separation. |
 | 2026-05-30 | Chat model changed from `gemini-2.5-flash` to `gemma-4-26b-a4b-it` | User preference. Model is a 26B MoE (4B active params) available via Gemini API. No code changes — model ID is read from `CHAT_MODEL` env var. |
+| 2026-05-30 | Session saved to `~/.recall/session.json` (not inside the project dir) | Keeps credentials out of the repo entirely; works cross-platform via `Path.home()` |
+| 2026-05-30 | `cfg.user_id` mutated after login in `main()` | Cleanest way to thread the authenticated UUID through all existing store calls without changing any function signatures |
 
 ---
 
@@ -63,6 +65,21 @@ Fill these in once confirmed against official docs before writing integration co
 ## Session Notes
 
 Short log of what each session did. Prepend new entries (newest at top).
+
+### 2026-05-30 — Phase 5 (reverted)
+Phase 5 was implemented then reverted at user request. All changes undone:
+- `recall/auth.py` deleted
+- `supabase/schema.sql` back to `DISABLE ROW LEVEL SECURITY`
+- `recall/cli.py` login step removed
+- `.env.example` back to service_role key + RECALL_USER_ID option restored
+
+### 2026-05-30 — Phase 4
+Files created/modified:
+- `recall/router.py` — new; `route(text, cfg)`: heuristic handles ends-with-?, query-starter words, "did/do/have i" prefixes; ambiguous input falls through to `classify_intent`
+- `recall/llm.py` — added `classify_intent(text, cfg)`: calls chat model at temp 0 with a few-shot STORE/QUERY system prompt; defaults to "store" on any exception
+- `recall/cli.py` — bare text now routes through `router.route`; extracted `_do_store` and `_do_query` helpers shared by slash commands and auto-routing; removed `_NOT_YET` stub
+
+DoD: test "remind me to call mom" (→ STORE) and "remind me where I parked" (→ QUERY). All slash commands still work.
 
 ### 2026-05-30 — Phase 3
 Files created/modified:
